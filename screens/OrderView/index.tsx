@@ -49,17 +49,11 @@ const OrderView = (props: Prop) => {
 
 			setOrder({});
 			ref.ref('/Order/' + orderId + '/')
-				.once('value')
-				.then((snapshot) => {
+				.on('value', snapshot => {
                     let temp: Order = snapshot.val();
-                    console.log(temp)
 					setOrder(temp);
 					setLoading(false);
-				})
-				.catch((error) => {
-					setLoading(false);
-					alert(error.message);
-				});
+                })
 
 
 		})
@@ -78,7 +72,8 @@ const OrderView = (props: Prop) => {
 			.ref('/Order/' + orderId + '/')
 			.update(order)
 			.then(() => {
-				setLoading(false);
+                setLoading(false);
+                props.navigation.pop();
 			})
 			.catch((error) => {
 				alert(error.message);
@@ -126,21 +121,20 @@ const OrderView = (props: Prop) => {
 							/>
 							{/* <Icon name="md-link" style={{ color: Colors.BLACK, fontSize: 15 }} type="Ionicons" /> */}
 						</Row>
-						
-						<Col style={styles.styleCol}>
-							<Text style={styles.textInputA}>
-								{order.foodItem}
-							</Text>
-							<Text
-								note
-								style={styles.textInputB}
-							>
-								{order.itemNo + '    '}
-							</Text>
-						</Col>
+
+                            <Col style={styles.styleCol}>
+                                <Text style={styles.textInputA}>
+                                    {order.foodItem}
+                                </Text>
+                                <Text
+                                    note
+                                    style={styles.textInputB}
+                                >
+                                    {order.itemNo + '    '}
+                                </Text>
+                            </Col>
 					</Grid>
 			):(
-
 				<Grid>
 					<Row style={styles.container}>
 						<Avatar
@@ -154,14 +148,34 @@ const OrderView = (props: Prop) => {
 						/>
 						{/* <Icon name="md-link" style={{ color: Colors.BLACK, fontSize: 15 }} type="Ionicons" /> */}
 					</Row>
-					<Row style={styles.removeRow}>
-                            <View style={styles.inputContainerB}>
-								<Button onPress={() => regect_order()}><Text style={styles.logoutButton}>Reject</Text><Image source={require('../../assets/icon/goods.png')} style={styles.inputIcon}/></Button>
-							</View>
-                            <View style={styles.inputContainerB}>
-								<Button onPress={() => accept_order()}><Text style={styles.logoutButton}>Accept</Text><Image source={require('../../assets/icon/clearance.png')} style={styles.inputIcon}/></Button>
-							</View>
-					</Row>
+                    {order.acceptOrder === true ?(
+                        <View>
+
+                            {order.acceptOrder === true ?(
+                                <View style={styles.noticeContainerA}>
+                                    <Text style={{paddingHorizontal: 9}}>Oder Accepted</Text>
+                                </View>
+                                
+                            ):(
+
+                                <Row style={styles.removeRow}>
+                                        <View style={styles.inputContainerB}>
+                                            <Button onPress={() => regect_order()}><Text style={styles.logoutButton}>Reject</Text><Image source={require('../../assets/icon/goods.png')} style={styles.inputIcon}/></Button>
+                                        </View>
+                                        <View style={styles.inputContainerB}>
+                                            <Button onPress={() => accept_order()}><Text style={styles.logoutButton}>Accept</Text><Image source={require('../../assets/icon/clearance.png')} style={styles.inputIcon}/></Button>
+                                        </View>
+                                </Row>
+
+                            )}
+                        </View>
+
+                    ):(
+                        <View style={styles.noticeContainerB}>
+                            <Text style={{paddingHorizontal: 13}}>This Oder Already Rejected.</Text>
+                        </View>
+                    )}
+					
 					<Col style={styles.styleCol}>
 						<Text style={styles.textInputA}>
 							{order.foodItem}

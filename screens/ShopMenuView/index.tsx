@@ -50,15 +50,10 @@ const MenuView = (props: Prop) => {
 
 			setMenu({});
 			ref.ref('/Menu/' + menuId + '/')
-				.once('value')
-				.then((snapshot) => {
+				.on('value', snapshot => {
 					let temp: Menu = snapshot.val();
 					setMenu(temp);
 					setLoading(false);
-				})
-				.catch((error) => {
-					setLoading(false);
-					alert(error.message);
 				});
 
 
@@ -85,7 +80,7 @@ const MenuView = (props: Prop) => {
 	const notAvailable_Menu = async () => {
 		setLoading(true);
 		const menu: Menu = {
-			available:available,
+			available:  true,
 		};
 		await ref
 			.ref('/Menu/' + menuId + '/')
@@ -101,7 +96,7 @@ const MenuView = (props: Prop) => {
 	const available_Menu = async () => {
 		setLoading(true);
 		const menu: Menu = {
-			available: true,
+			available: available,
 		};
 		await ref
 			.ref('/Menu/' + menuId + '/')
@@ -238,20 +233,21 @@ const MenuView = (props: Prop) => {
 							<Button style={styles.buttonBacground} onPress={() => removing_Menu()}><Image source={require('../../assets/icon/delete.png')} style={styles.inputIcon}/></Button>
 							{menu.available ? (
 								<Button
+								bordered
+								style={styles.buttonAvailable}
+								onPress={() => available_Menu()}
+							>
+								<Text style={styles.text}>Available</Text>
+							</Button>
+							) : (
+								<Button
 									bordered
 									style={styles.buttonNotAvailable}
 									onPress={() => notAvailable_Menu()}
 								>
 									<Text style={styles.text}>NotAvailable</Text>
 								</Button>
-							) : (
-								<Button
-									bordered
-									style={styles.buttonAvailable}
-									onPress={() => available_Menu()}
-								>
-									<Text style={styles.text}>Available</Text>
-								</Button>
+								
 							)}
 						</View>
 					</Row>

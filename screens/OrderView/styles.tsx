@@ -91,6 +91,17 @@ export default StyleSheet.create({
       borderRadius: 5,
       marginBottom: 10,
     },
+    noticeContainerB: {
+        padding: 10,
+        marginHorizontal: 65,
+        backgroundColor: Colors.RED,
+        width: 250,
+        justifyContent: 'center',
+        borderColor: Colors.BLACK,
+        borderWidth: 0.5,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
     noticeContainerN: {
       padding: 10,
       marginHorizontal: 114,
