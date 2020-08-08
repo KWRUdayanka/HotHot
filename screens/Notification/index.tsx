@@ -62,41 +62,54 @@ const NotificationScreen = (props: Props) => {
       setUserType(temp);
       
       if (temp.userType === 'Customer') {
-        
+
+        	ref.ref('/User/' + user?.uid + '/orders').on('value', (snapshot) => {
+						setOrderData([]);
+						let orderKeys: Array<string> = snapshot.val();
+						if (!orderKeys) {
+							console.log('no notifications');
+							return;
+						}
+						orderKeys.map(async (value, i) => {
+							await ref
+								.ref('/Order/' + value + '/')
+								.on('value',snapshot =>{
+									let order: Order = snapshot.val();
+									order.orderId = value;
+									setOrderData((preOrderData) => [...preOrderData, order]);
+									setLoading(false);
+								})
+						});
+			}); 
       } 
       
       
-      else if (temp.userType === 'Shop') {
-        
-        
-        ref.ref('/Shop/' + user?.uid + '/orders').on('value', (snapshot) => {
-					setOrderData([]);
-					let orderKeys: Array<string> = snapshot.val();
-					if (!orderKeys) {
-						console.log('no notifications');
-						return;
-					}
-					orderKeys.map(async (value, i) => {
-						await ref
-							.ref('/Order/' + value + '/')
-							.once('value')
-							.then((snapshot2) => {
-								let order: Order = snapshot2.val();
-                order.orderId = value;
-								setOrderData((preOrderData) => [...preOrderData, order]);
-								setLoading(false);
-              })
-              .catch((error) => {
-                alert(error.message);
-              });
-          });
-        });  
-      }
+		else if (temp.userType === 'Shop') {
+			
+			
+			ref.ref('/Shop/' + user?.uid + '/orders').on('value', (snapshot) => {
+						setOrderData([]);
+						let orderKeys: Array<string> = snapshot.val();
+						if (!orderKeys) {
+							console.log('no notifications');
+							return;
+						}
+						orderKeys.map(async (value, i) => {
+							await ref
+								.ref('/Order/' + value + '/')
+								.on('value',snapshot =>{
+									let order: Order = snapshot.val();
+									order.orderId = value;
+									setOrderData((preOrderData) => [...preOrderData, order]);
+									setLoading(false);
+								})
+						});
+			});  
+		}
 
-    })
-		.catch((error) => {
-			alert(error.message);
-		});		
+    }).catch((error) => {
+		alert(error.message);
+	});		
 
 
   }
@@ -104,36 +117,101 @@ const NotificationScreen = (props: Props) => {
   return (
     <Container>
       <Content>
-      <List>
-					{orderData.length === 0 ? (
-						<View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, marginTop: 30 }}>
-							<Text style={{ fontWeight: 'bold', color: Colors.NAVYBLUE }}>No Details</Text>
-						</View>
-					) : (
-						orderData.map((value, i) => {
-							return (
-								<ListItem
-									noIndent
-									key={i}
-									onPress={() =>
-										props.navigation.push('Order', {
-											orderId: value.orderId,
-											title: value.foodItem,
-										})
-									}
-								>
-									<Left>
-										<Thumbnail source={require('../../assets/icon/bell.png')}/>
-										<Body>
-											<Text>{value.foodItem}</Text>
-											<Text note>{value.itemNo}</Text>
-										</Body>
-									</Left>
-								</ListItem>
-							);
-						})
-					)}
-				</List>
+		  {userType.userType === 'Customer'? (
+			  <List>
+			  {orderData.length === 0 ? (
+				  <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, marginTop: 30 }}>
+					  <Text style={{ fontWeight: 'bold', color: Colors.NAVYBLUE }}>No Details</Text>
+				  </View>
+			  ) : (
+				  orderData.map((value, i) => {
+					  return (
+					  	<List>
+						  {!value.acceptOrder ? (
+								<List>
+									{value.acceptOrder === false? (
+										<ListItem
+										style={{backgroundColor: Colors.RED}}
+										noIndent
+										key={i}
+										onPress={() =>
+											props.navigation.push('Order', {
+												orderId: value.orderId,
+												title: value.foodItem,
+											})
+										}
+										>
+											<Left>
+												<Thumbnail source={require('../../assets/icon/bell.png')}/>
+												<Body>
+													<Text>{value.foodItem}</Text>
+													<Text style={{color: Colors.CYAN}} note>{value.itemNo}</Text>
+													<Text style={{color: Colors.CYAN}} note>Your order has been rejected.</Text>
+												</Body>
+											</Left>
+										</ListItem>
+									) : (null)}
+								</List>
+						  ):(
+							<ListItem
+							style={{backgroundColor: Colors.GREEN}}
+							noIndent
+							key={i}
+							onPress={() =>
+								props.navigation.push('Order', {
+									orderId: value.orderId,
+									title: value.foodItem,
+								})
+							}
+							>
+								<Left>
+									<Thumbnail source={require('../../assets/icon/bell.png')}/>
+									<Body>
+										<Text>{value.foodItem}</Text>
+										<Text style={{color: Colors.CYAN}} note>{value.itemNo}</Text>
+										<Text style={{color: Colors.CYAN}} note>Your order has been accepted.</Text>
+									</Body>
+								</Left>
+							</ListItem>
+						  )}
+						</List>
+					  );
+				  })
+			  )}
+		  </List>
+		  ):(
+
+			  <List>
+				{orderData.length === 0 ? (
+					<View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, marginTop: 30 }}>
+						<Text style={{ fontWeight: 'bold', color: Colors.NAVYBLUE }}>No Details</Text>
+					</View>
+				) : (
+					orderData.map((value, i) => {
+						return (
+							<ListItem
+								noIndent
+								key={i}
+								onPress={() =>
+									props.navigation.push('Order', {
+										orderId: value.orderId,
+										title: value.foodItem,
+									})
+								}
+							>
+								<Left>
+									<Thumbnail source={require('../../assets/icon/bell.png')}/>
+									<Body>
+										<Text>{value.foodItem}</Text>
+										<Text note>{value.itemNo}</Text>
+									</Body>
+								</Left>
+							</ListItem>
+						);
+					})
+				)}
+			</List>
+		  )}
       </Content>
     </Container>
   );

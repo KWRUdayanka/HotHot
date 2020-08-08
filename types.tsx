@@ -43,6 +43,7 @@ export type User = {
   contactNumber?: string;
   address?: string;
   email?: string;
+  orders?: Array<string | null>;
 };
 
 

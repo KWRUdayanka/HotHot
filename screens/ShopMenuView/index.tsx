@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Linking, Image, TextInput } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { TabTwoParamList, Menu, AllUsers, Order, Shop } from '../../types';
+import { TabTwoParamList, Menu, AllUsers, Order, Shop, User } from '../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as firebase from 'firebase';
 import Loading from '../Loading';
@@ -138,9 +138,26 @@ const MenuView = (props: Prop) => {
 				ref.ref('/Shop/' + menu.ownerId + '/')
 				.update(tempUser)
 				.then(() => {
-					console.log(tempUser)
-						setLoading(false);
-						props.navigation.pop();
+						ref.ref('/User/' + user?.uid + '/')
+						.once('value')
+						.then((snapshot2) => {
+								const tempUser2: User = snapshot2.val();
+								tempUser2.orders = tempUser2.orders ? [...tempUser2.orders, orderRef.key] : [orderRef.key];
+								ref.ref('/User/' + user?.uid + '/')
+								.update(tempUser2)
+								.then(() => {
+									setLoading(false);
+									props.navigation.pop();
+								})
+								.catch((error) => {
+									alert(error.message);
+									setLoading(false);
+								});
+						})
+						.catch((error) => {
+							alert(error.message);
+							setLoading(false);
+						});
 					})
 					.catch((error) => {
 						alert(error.message);

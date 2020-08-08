@@ -73,7 +73,6 @@ const OrderView = (props: Prop) => {
 			.update(order)
 			.then(() => {
                 setLoading(false);
-                props.navigation.pop();
 			})
 			.catch((error) => {
 				alert(error.message);
@@ -97,7 +96,17 @@ const OrderView = (props: Prop) => {
     }
 
 	/////////////////////////////////////////////////////	
-	const deliver = async () => {
+	const Remove_Notification = async () => {
+        setLoading(true);
+		
+        await ref.ref('/Shop/'+ user?.uid + '/orders/' + orderId)
+                .remove().then(() => {
+                setLoading(false);
+                props.navigation.pop();
+            })
+			.catch((error) => {
+				alert(error.message);
+		});
 	}
 
 	if (isLoading) {
@@ -119,7 +128,6 @@ const OrderView = (props: Prop) => {
 								// showAccessory
 								containerStyle={styles.containerStyle}
 							/>
-							{/* <Icon name="md-link" style={{ color: Colors.BLACK, fontSize: 15 }} type="Ionicons" /> */}
 						</Row>
 
                             <Col style={styles.styleCol}>
@@ -130,9 +138,22 @@ const OrderView = (props: Prop) => {
                                     note
                                     style={styles.textInputB}
                                 >
-                                    {order.itemNo + '    '}
+                                    {order.itemNo }
                                 </Text>
                             </Col>
+                            {order.acceptOrder ? (
+                                <View style={styles.noticeContainerA}>
+                                    <Text style={{paddingHorizontal: 6}}>
+                                        Order Accepted
+                                    </Text>
+                                </View>
+                            ):(
+                                <View style={styles.noticeContainerB}>
+                                    <Text style={{paddingHorizontal: 59}}>
+                                        Order Rejected
+                                    </Text>
+                                </View>
+                            )}
 					</Grid>
 			):(
 				<Grid>
@@ -148,7 +169,21 @@ const OrderView = (props: Prop) => {
 						/>
 						{/* <Icon name="md-link" style={{ color: Colors.BLACK, fontSize: 15 }} type="Ionicons" /> */}
 					</Row>
-                    {order.acceptOrder === true ?(
+                    {order.acceptOrder === false ?(
+
+                        <View>
+                            <View style={styles.noticeContainerB}>
+                                <Text style={{paddingHorizontal: 13}}>This Oder Already Rejected.</Text>
+                            </View>
+
+
+                            <View style={styles.inputContainerB}>
+                                <Button onPress={() => Remove_Notification()}><Text style={styles.logoutButton}>Remove Notification</Text><Image source={require('../../assets/icon/delete.png')} style={styles.inputIcon}/></Button>
+                            </View>
+                        </View>
+
+
+                    ):(
                         <View>
 
                             {order.acceptOrder === true ?(
@@ -168,11 +203,6 @@ const OrderView = (props: Prop) => {
                                 </Row>
 
                             )}
-                        </View>
-
-                    ):(
-                        <View style={styles.noticeContainerB}>
-                            <Text style={{paddingHorizontal: 13}}>This Oder Already Rejected.</Text>
                         </View>
                     )}
 					
