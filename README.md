@@ -1,4 +1,4 @@
-Welcome to H!
+Welcome to HotHot!
 ==================
 
 System Requirements
