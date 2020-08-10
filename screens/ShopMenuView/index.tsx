@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Linking, Image, TextInput } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { TabTwoParamList, Menu, AllUsers, Order, Shop, User } from '../../types';
+import { TabTwoParamList, Menu, AllUsers, Order, Shop, User, Driver } from '../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as firebase from 'firebase';
 import Loading from '../Loading';
@@ -146,8 +146,18 @@ const MenuView = (props: Prop) => {
 								ref.ref('/User/' + user?.uid + '/')
 								.update(tempUser2)
 								.then(() => {
-									setLoading(false);
-									props.navigation.pop();
+									// const tempUser: Driver = snapshot.val();
+									// 	tempUser.orders = tempUser.orders ? [...tempUser.orders, orderRef.key] : [orderRef.key];
+									// 	ref.ref('/Driver/' + menu.ownerId + '/')
+									// 	.update(tempUser)
+									// 	.then(() => {
+											setLoading(false);
+											props.navigation.pop();
+										// })
+										// .catch((error) => {
+										// 	alert(error.message);
+										// 	setLoading(false);
+										// });
 								})
 								.catch((error) => {
 									alert(error.message);

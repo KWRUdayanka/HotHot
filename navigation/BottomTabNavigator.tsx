@@ -103,6 +103,11 @@ function TabTwoNavigator() {
         component={MenuView}
         options={({ route }) => ({ headerTitle: route.params.title })}
       />
+      <TabTwoStack.Screen
+        name="Order"
+        component={OrderView}
+        options={({ route }) => ({ headerTitle: route.params.title })}
+      />
       {/* <TabTwoStack.Screen name="AddProducts" component={AddProducts} options={{ headerTitle: 'Add Products' }} /> */}
     </TabTwoStack.Navigator>
   );

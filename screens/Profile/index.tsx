@@ -9,6 +9,7 @@ import { Container, Content, Text, Icon, Grid, Row, View, Col, List, Card, CardI
 // import { FloatingAction } from 'react-native-floating-action';
 import { Avatar } from 'react-native-elements';
 import styles from './style'
+import Colors from '../../constants/Colors';
 
 type ProfileRouteProps = RouteProp<TabThreeParamList, 'Profile'>;
 type ProfileNavigationProps = StackNavigationProp<TabThreeParamList, 'Profile'>;
@@ -24,7 +25,6 @@ const Profile = (props: Prop) => {
 	const ref = firebase.database();
 	const user = firebase.auth().currentUser;
 	const [profileData, setProfileData] = React.useState<User>({});
-	const [userName, setUserName] = React.useState<string>('');
 	const [userType, setUserType] = React.useState<AllUsers>({});
 	const [isLoading, setLoading] = React.useState(true);
     
@@ -74,6 +74,20 @@ const Profile = (props: Prop) => {
 						setLoading(false);
 						alert(error.message);
 					});
+			} else {
+				console.log("Rashan")
+				setProfileData({});
+				ref.ref('/Driver/' + user?.uid + '/')
+					.once('value')
+					.then((snapshot) => {
+						let temp: User = snapshot.val();
+						setProfileData(temp);
+						setLoading(false);
+					})
+					.catch((error) => {
+						setLoading(false);
+						alert(error.message);
+					});
 			}
 
 		})
@@ -89,14 +103,21 @@ const Profile = (props: Prop) => {
 		firebase.auth().signOut().then(() => console.log('Log Out User..'));
 	}
 
+	/////////////////////////
+	const remove_user = async () => {
+		await ref.ref('/User/' + user?.uid).remove();
+	}
+
 	// const _signOutAsync = async () => {
 	// 	// await AsyncStorage.clear();
 	// 	props.navigation.navigate('AuthStack');
 	// };
 
-	const contact = (phone?: string) => {
-		Linking.openURL('tel:' + phone);
-	};
+	
+
+	if (isLoading) {
+		return <Loading />;
+	}
 
 	return (
 		<Container>
@@ -112,7 +133,6 @@ const Profile = (props: Prop) => {
 						</Text>
 					</Text>
 					<Text style={styles.textInput}
-						onPress={() => contact(profileData.contactNumber)}
 					>
 						Contact No: {profileData.contactNumber} <Image source={require('../../assets/icon/phone.png')} style={styles.inputIcon}/>
 					</Text>
@@ -126,14 +146,17 @@ const Profile = (props: Prop) => {
 				</Row>
 				<Row style={styles.removeRow}>
 					<View style={styles.inputContainer}>
-						<Button onPress={() => changeData()}><Text style={styles.logoutButton}>Edit</Text><Image source={require('../../assets/icon/pencil.png')} style={styles.inputIcon}/></Button>
+						<Button onPress={() => changeData()} style={{backgroundColor: Colors.GREEN}}><Text style={styles.logoutButton}>Edit</Text><Image source={require('../../assets/icon/pencil.png')} style={styles.inputIcon}/></Button>
 					</View>
 					<View style={styles.inputContainer}>
 						<Button onPress={() => signOut()}><Text style={styles.logoutButton}>Logout</Text><Image source={require('../../assets/icon/logout.png')} style={styles.inputIcon}/></Button>
 					</View>
 				</Row>
+				<View style={styles.inputContainer}>
+					<Button onPress={() => signOut()} style={{backgroundColor: Colors.RED}}><Text style={styles.logoutButton}>Remove Account</Text><Image source={require('../../assets/icon/angry.png')} style={styles.inputIcon}/></Button>
+				</View>
 			</Grid>
-			) : (
+			) : userType.userType === 'Shop' ? (
 				<Grid>
 					<View style={styles.container}>
 						<Image source={require('../../assets/icon/shop.png')} style={styles.inputImage}/>
@@ -143,8 +166,43 @@ const Profile = (props: Prop) => {
 							<Text> {profileData.userName}
 							</Text>
 						</Text>
+						<Text style={styles.textInput}>
+							Contact No: {profileData.contactNumber} <Image source={require('../../assets/icon/phone.png')} style={styles.inputIcon}/>
+						</Text>
+					</View>
+					<Row style={styles.styleRow}>
+						<Text
+							style={styles.textInput}
+						>
+							Address: {profileData.address}
+						</Text>
+					</Row>
+					<Row style={styles.removeRow}>
+						<View style={styles.inputContainer}>
+							<Button onPress={() => changeData()} style={{backgroundColor: Colors.GREEN}}><Text style={styles.logoutButton}>Edit</Text><Image source={require('../../assets/icon/pencil.png')} style={styles.inputIcon}/></Button>
+						</View>
+						<View style={styles.inputContainer}>
+							<Button onPress={() => signOut()}><Text style={styles.logoutButton}>Logout</Text><Image source={require('../../assets/icon/logout.png')} style={styles.inputIcon}/></Button>
+						</View>
+					</Row>
+
+					<View style={styles.inputContainer}>
+						<Button onPress={() => remove_user()} style={{backgroundColor: Colors.RED}}><Text style={styles.logoutButton}>Remove Account</Text><Image source={require('../../assets/icon/angry.png')} style={styles.inputIcon}/></Button>
+					</View>
+					
+
+				</Grid>
+			) : (
+				<Grid>
+					<View style={styles.container}>
+						<Image source={require('../../assets/icon/shop.png')} style={styles.inputImage}/>
+					</View>
+					<View style={styles.styleRow}>
+						<Text style={styles.textInput}>Driver Name:
+							<Text> {profileData.userName}
+							</Text>
+						</Text>
 						<Text style={styles.textInput}
-							onPress={() => contact(profileData.contactNumber)}
 						>
 							Contact No: {profileData.contactNumber} <Image source={require('../../assets/icon/phone.png')} style={styles.inputIcon}/>
 						</Text>
@@ -158,12 +216,18 @@ const Profile = (props: Prop) => {
 					</Row>
 					<Row style={styles.removeRow}>
 						<View style={styles.inputContainer}>
-							<Button onPress={() => changeData()}><Text style={styles.logoutButton}>Edit</Text><Image source={require('../../assets/icon/pencil.png')} style={styles.inputIcon}/></Button>
+							<Button onPress={() => changeData()} style={{backgroundColor: Colors.GREEN}}><Text style={styles.logoutButton}>Edit</Text><Image source={require('../../assets/icon/pencil.png')} style={styles.inputIcon}/></Button>
 						</View>
 						<View style={styles.inputContainer}>
 							<Button onPress={() => signOut()}><Text style={styles.logoutButton}>Logout</Text><Image source={require('../../assets/icon/logout.png')} style={styles.inputIcon}/></Button>
 						</View>
 					</Row>
+
+					<View style={styles.inputContainer}>
+						<Button onPress={() => remove_user()} style={{backgroundColor: Colors.RED}}><Text style={styles.logoutButton}>Remove Account</Text><Image source={require('../../assets/icon/angry.png')} style={styles.inputIcon}/></Button>
+					</View>
+					
+
 				</Grid>
 			)}
 			</Content>

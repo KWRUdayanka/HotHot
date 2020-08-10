@@ -22,6 +22,7 @@ export type TabTwoParamList = {
   Foods: { shopId?: string , name?: string, contactNumber?:string };
   CreateMenu: undefined;
   MenuView: { menuId?: string, title?: string, contactNumber?:string };
+  Order: { orderId?: string , title?: string };
   AddProducts: { menuId?: string };
 };
 
@@ -64,6 +65,7 @@ export type Driver = {
   contactNumber?: string;
   address?: string;
   email?: string;
+  orders?: Array<string | null>;
 };
 
 export type Menu = {
@@ -79,10 +81,11 @@ export type Menu = {
 export type Order = {
   userId?: string;
   menuId?: string;
-  orderId?: string;
+  orderId?: any;
   foodItem?: string;
   itemNo?: string;
   shopId?:string;
   description?: string;
   acceptOrder?: boolean;
+  driverAcceptOrder?: boolean
 }

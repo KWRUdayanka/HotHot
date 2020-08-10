@@ -19,12 +19,13 @@ import {
 } from 'native-base';
 import * as firebase from 'firebase';
 import { RouteProp } from '@react-navigation/native';
-import { TabTwoParamList, Menu, AllUsers, Shop, User } from '../../types';
+import { TabOneParamList, TabTwoParamList,Menu, AllUsers, Shop, User, Order, Driver } from '../../types';
 import Swiper from 'react-native-swiper'
 import { StackNavigationProp } from '@react-navigation/stack';
+import Loading from '../Loading';
 import Colors from '../../constants/Colors';
 
-type HomeScreenRoteProps = RouteProp<TabTwoParamList, 'Home'>;
+type HomeScreenRoteProps = RouteProp<TabTwoParamList,  'Home'>;
 type HomeScreenNavigationProps = StackNavigationProp<TabTwoParamList, 'Home'>;
 
 type Props = {
@@ -39,6 +40,7 @@ const HomeScreen = (props: Props) => {
 	const ref = firebase.database();
 	const [menuData, setMenuData] = React.useState<Array<Menu>>([]);
 	const [shopData, setShopData] = React.useState<Array<Shop>>([]);
+	const [orderData, setOrderData] = React.useState<Array<Order>>([]);
 	const [userType, setUserType] = React.useState<AllUsers>({});
 	const [isLoading, setLoading] = React.useState(true);
 
@@ -47,6 +49,7 @@ const HomeScreen = (props: Props) => {
 		return() => {
 			setMenuData([]);
 			setShopData([]);
+			setOrderData([]);
 		}
 	}, []);
 	
@@ -106,6 +109,31 @@ const HomeScreen = (props: Props) => {
 							});
 					});
 				});
+			} else {
+				ref.ref('/Order/').on('value', (snapshot) => {
+					var orders = snapshot.val();
+					if (!snapshot.exists()) {
+						console.log('no orders');
+						setLoading(false);
+						return;
+					}
+					for (var key in orders) {
+						if (orders.hasOwnProperty(key)) {
+							if (orders[key].acceptOrder){
+
+								const order  = {
+									orderId: [key],
+									foodItem: orders[key].foodItem,
+									itemNo: orders[key].itemNo,
+									acceptOrder: orders[key].acceptOrder,
+									driverAcceptOrder: orders[key].driverAcceptOrder					
+								};
+								setOrderData((preOrderData) => [...preOrderData, order]);
+								setLoading(false);
+							}
+						}
+					}
+				})
 			}
 
 
@@ -118,6 +146,10 @@ const HomeScreen = (props: Props) => {
 		
 
 	};
+
+	if (isLoading) {
+		return <Loading />;
+	}
 
 	return (
 		<Container>
@@ -154,7 +186,7 @@ const HomeScreen = (props: Props) => {
 					)}
 				</List>
 				
-			) : (
+			) : userType.userType === 'Shop' ? (
 				<List>
 					{menuData.length === 0 ? (
 						<View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, marginTop: 30 }}>
@@ -181,6 +213,42 @@ const HomeScreen = (props: Props) => {
 										</Body>
 									</Left>
 								</ListItem>
+							);
+						})
+					)}
+				</List>
+			) : (
+				<List>
+					{orderData.length === 0 ?(
+						<View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, marginTop: 30 }}>
+						<Text style={{ fontWeight: 'bold', color: Colors.NAVYBLUE }}>No Details</Text>
+					</View>
+					):(
+						orderData.map((value, i) => {
+							return (
+								<View>
+									{value.driverAcceptOrder === true ? (null) : (
+
+										<ListItem
+											noIndent
+											key={i}
+											onPress={() =>
+												props.navigation.push('Order', {
+													orderId: value.orderId,
+													title: value.foodItem,
+												})
+											}
+										>
+											<Left>
+												<Thumbnail source={require('../../assets/icon/product.png')}/>
+												<Body>
+													<Text>{value.foodItem}</Text>
+													<Text note>{value.itemNo}</Text>
+												</Body>
+											</Left>
+										</ListItem>
+									)}
+								</View>
 							);
 						})
 					)}
