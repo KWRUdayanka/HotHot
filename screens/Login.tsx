@@ -6,6 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Container, Header, Content, Item, Input, Grid, Row, Form, Button, Icon } from 'native-base';
 import { TextInput } from 'react-native-gesture-handler';
 import Layout from '../constants/Layout';
+import Colors from '../constants/Colors'
 import {ImageBackground} from 'react-native';
 import * as firebase from 'firebase';
 
@@ -63,6 +64,7 @@ const Login = ({ route, navigation }: prop) => {
 									  value={pwd} 
 								  />
 								</Item>
+								<View><Text style={{color:Colors.BLACK }}>KWR Udayanka-17001811</Text></View>
 							</Form>
 						</Row>
 						<Row

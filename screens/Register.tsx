@@ -104,6 +104,7 @@ const Register = (props: RegisterProps) => {
                   marginHorizontal: 20,
                 }}
               >
+                <View><Text style={{color:Colors.BLACK }}>KWR Udayanka-17001811</Text></View>
                 <Item rounded style={styles.inputbox}>
                   <Input
                    placeholder="Name" 
